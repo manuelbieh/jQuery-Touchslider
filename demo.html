@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Touchslider Demo</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=yes">
+<meta charset="utf-8">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="js/jquery.touchslider.js"></script>
+
+<script>
+
+$(function() {
+
+	$('.sliderWrapper.hori').touchSlide({minValue: 10, maxValue: 60, initial: 10, moveCallback: function(params) {
+			params.value && params.btn.text(params.value);
+		}
+	});
+
+	$('.sliderWrapper.vert').touchSlide({minValue: 10, maxValue: 60, dir: 'v', moveCallback: function(params) {
+			params.value && params.btn.text(params.value);
+		}
+	}).setValue(10);
+
+	$('.weirdo').touchSlide({minValue: 3, maxValue: 119, moveCallback: function(params) {
+			params.btn.text(params.value);
+		}
+	}).setValue(27);
+
+	$('.bool.vert').touchSlide({minValue: 0, maxValue: 1, dir: 'v', 
+		stepCallback: {
+			50: function(info) {
+				console.log(info);
+			},
+			33: function(info) {
+				console.log('one third!');
+				console.log(info);
+			}
+		}, 
+		moveCallback: function(params) {
+			params.btn.text(params.value);
+		}
+
+	});
+
+});
+
+</script>
+<style>
+* {
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	padding-bottom: 50px;
+}
+
+.hori {
+	border: 1px solid red;
+	clear: both;
+	float: left;
+	height: 50px;
+	margin: 50px;
+	position: relative;
+	width: 200px;
+}
+
+.vert {
+	border: 1px solid red;
+	clear: both;
+	float: left;
+	height: 200px;
+	position: relative;
+	margin: 50px;
+	width: 50px;
+}
+
+.btn {
+	background: red;
+	-webkit-border-radius: 50%;
+	-moz-border-radius: 50%;
+	border-radius: 50%;
+	height: 50px;
+	border: 1px solid blue;
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 50px;
+	-moz-transform: translate3d(0,0,0);
+	-webkit-transform: translate3d(0,0,0);
+	transform: translate3d(0,0,0);
+}
+
+.bool .btn {
+	height: 25px;
+	margin-left: 12px;
+	width: 25px;
+}
+
+.weirdo {
+	border: 1px solid red;
+	float: left;
+	height: 43px;
+	margin: 20px;
+	position: relative;
+	width: 253px;
+}
+
+.weirdo .btn {
+	width: 17px;
+}
+
+</style>
+</head>
+<body>
+
+<div class="sliderWrapper hori">
+	<div class="btn"></div>
+</div>
+
+<div class="sliderWrapper vert">
+	<div class="btn"></div>
+</div>
+
+<div class="weirdo">
+	<div class="btn"></div>
+</div>
+
+<div class="bool vert">
+	<div class="btn"></div>
+</div>
+
+<br style="clear: both;">
+
+</body>
+</html>
