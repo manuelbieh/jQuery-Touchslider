@@ -36,20 +36,46 @@ if(typeof jQuery != 'undefined') {
 
 				return this.each(function () {
 
-					var $$	= $(this),
+					var	$$	= $(this),
 						o	= $.metadata ? $.extend({}, settings, $$.metadata()) : settings;
 
-						$$.addClass('touchSlide');
+					$$.addClass('touchSlide');
 
 					var $btn			= $$.find(o.btnClass);
 					var btnHalfX		= $btn.outerWidth()/2;
 					var btnHalfY		= $btn.outerHeight()/2;
 					var sliderWidth		= $$.innerWidth();
 					var sliderHeight	= $$.innerHeight();
-					var sliderSize		= o.dir == 'v' ? sliderHeight : sliderWidth;
 
-					$btn.data('currentLeft', 0);
-					$btn.data('currentTop', 0);
+					if(o.btnHalf == true) {
+
+						var sliderSize		= o.dir == 'v' ? sliderHeight : sliderWidth;
+
+						if(o.dir == 'v') {
+							$btn.css({
+								marginTop: -(btnHalfY),
+								marginBottom: -(btnHalfY)
+							});
+						} else {
+							$btn.css({
+								marginLeft: -(btnHalfX),
+								marginRight: -(btnHalfX)
+							});
+						}
+					} else {
+						var sliderSize	= o.dir == 'v' ? sliderHeight-btnHalfY*2 : sliderWidth-btnHalfX*2;
+					}
+
+					if(o.inverse == true) {
+						$btn.data('currentTop', 0); // Bottom
+						$btn.data('currentLeft', 0); // Right
+						$btn.css({
+							bottom: 0
+						});
+					} else {
+						$btn.data('currentTop', 0);
+						$btn.data('currentLeft', 0);
+					}
 
 					var getDistanceX = function(e) {
 						if('ontouchstart' in window) {
@@ -86,19 +112,10 @@ if(typeof jQuery != 'undefined') {
 					var buttonPixelsPerStep = 1;
 
 					if(o.dir == 'v') {
-						$btn.css({
-							marginTop: -(btnHalfY),
-							marginBottom: -(btnHalfY)
-						});
-						var offsetSide = 'top';
+						var offsetSide = o.inverse == true ? 'bottom' : 'top';
 					} else {
-						$btn.css({
-							marginLeft: -(btnHalfX),
-							marginRight: -(btnHalfX)
-						});
-						var offsetSide = 'left';
+						var offsetSide = o.inverse == true ? 'right' : 'left';
 					}
-
 
 					if(o.initial) {
 						var startPoint = parseInt((o.initial - o.minValue) * pixelsPerStep, 10);
@@ -106,12 +123,23 @@ if(typeof jQuery != 'undefined') {
 					}
 
 					$btn.bind('mousedown touchstart', function(e) {
+
 						e.preventDefault();
 						$btn.data('startOffsetX', getDistanceX(e));
 						$btn.data('startOffsetY', getDistanceY(e));
-						$btn.data('currentLeft', parseInt($btn.css('left'), 10));
-						$btn.data('currentTop', parseInt($btn.css('top'), 10));
+
+						if(o.inverse == true) {
+							$btn.data('currentLeft', parseInt($btn.css('right'), 10)); // right
+							$btn.data('currentTop', parseInt($btn.css('bottom'), 10)); // bottom
+							
+						} else {
+							$btn.data('currentLeft', parseInt($btn.css('left'), 10));
+							$btn.data('currentTop', parseInt($btn.css('top'), 10));
+						}
+
 					});
+
+					var sliderInfo = {}
 
 					$(document).bind('mousemove touchmove', function(e) {
 
@@ -123,14 +151,17 @@ if(typeof jQuery != 'undefined') {
 
 								var currentDistance = getDistanceY(e);
 								var slideLength = -($btn.data('startOffsetY') - currentDistance);
-								var currentTop = $btn.data('currentTop');
+								slideLength = o.inverse == true ? -slideLength : slideLength;
+								var currentTop = parseInt($btn.data('currentTop'), 10);
+								currentTop = isNaN(currentTop) ? 0 : currentTop;
 								var newPos = currentTop + slideLength;
 
 							} else {
 
 								var currentDistance = getDistanceX(e);
 								var slideLength = -($btn.data('startOffsetX') - currentDistance);
-								var currentLeft = $btn.data('currentLeft');
+								slideLength = o.inverse == true ? -slideLength : slideLength;
+								var currentLeft = parseInt($btn.data('currentLeft'), 10);
 								var newPos = currentLeft + slideLength;
 
 							}
@@ -153,20 +184,21 @@ if(typeof jQuery != 'undefined') {
 								$$.data('value', value);
 								$$.data('percentage', percentage);
 
-								var sliderInfo = {
+								sliderInfo = {
 									options: o,
-									value: value || 0, 
+									value: value || 0,
 									buttonPercentage: buttonPercentage,
-									percentage: percentage || 0, 
-									position: newPos, 
-									step: currentStep, 
-									btn: $btn, 
+									percentage: percentage || 0,
+									position: newPos,
+									step: currentStep,
+									btn: $btn,
 									slider: $$,
 									dir: o.dir,
 									sliderSize: sliderSize,
-									minValue: o.minValue, 
-									maxValue: o.maxValue, 
+									minValue: o.minValue,
+									maxValue: o.maxValue,
 								}
+
 
 								if(!!o.stepCallback != false && typeof o.stepCallback[buttonPercentage] == 'function') {
 									o.stepCallback[buttonPercentage](sliderInfo);
@@ -182,19 +214,22 @@ if(typeof jQuery != 'undefined') {
 
 					});
 
-					$(document).bind('mouseup touchend', function(e) {
-						endDragging(e);
-					});
-
 					var endDragging = function(e) {
 						e.preventDefault();
 						$btn.data('startOffsetX', null);
 					}
 
+					$(document).bind('mouseup touchend', function(e) {
+						endDragging(e);
+						if(!!o.endCallback != false && typeof o.endCallback == 'function') {
+							o.endCallback(sliderInfo);
+						}
+					});
+
 					$$.data('touchSlide', {
 						'$btn': $btn,
 						 options: o,
-						 pixelsPerStep: pixelsPerStep, 
+						 pixelsPerStep: pixelsPerStep,
 						 btnHalfX: btnHalfX, 
 						 btnHalfY: btnHalfY, 
 						 sliderWidth: sliderWidth, 
@@ -212,9 +247,12 @@ if(typeof jQuery != 'undefined') {
 		
 		$.fn.touchSlide.defaults = {
 			dir: 'h',
+			btnHalf: true,
 			minValue: 0,
+			maxValue: 1,
 			stepCallback: null,
 			moveCallback: null,
+			endCallback: null,
 			btnClass: '.btn'
 		};
 		
