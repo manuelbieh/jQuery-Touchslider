@@ -67,11 +67,20 @@ if(typeof jQuery != 'undefined') {
 					}
 
 					if(o.inverse == true) {
+
 						$btn.data('currentTop', 0); // Bottom
 						$btn.data('currentLeft', 0); // Right
-						$btn.css({
-							bottom: 0
-						});
+
+						if(o.dir == 'v') {
+							$btn.css({
+								bottom: 0
+							});
+						} else {
+							$btn.css({
+								right: 0
+							});
+						}
+
 					} else {
 						$btn.data('currentTop', 0);
 						$btn.data('currentLeft', 0);
@@ -131,7 +140,6 @@ if(typeof jQuery != 'undefined') {
 						if(o.inverse == true) {
 							$btn.data('currentLeft', parseInt($btn.css('right'), 10)); // right
 							$btn.data('currentTop', parseInt($btn.css('bottom'), 10)); // bottom
-							
 						} else {
 							$btn.data('currentLeft', parseInt($btn.css('left'), 10));
 							$btn.data('currentTop', parseInt($btn.css('top'), 10));

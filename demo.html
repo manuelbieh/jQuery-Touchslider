@@ -16,10 +16,10 @@ $(function() {
 		}
 	});
 
-	$('.sliderWrapper.vert').touchSlide({minValue: 10, maxValue: 60, dir: 'v', moveCallback: function(params) {
+	$('.sliderWrapper.vert').touchSlide({initial: 25, inverse: true, minValue: 10, maxValue: 60, dir: 'v', moveCallback: function(params) {
 			params.value && params.btn.text(params.value);
 		}
-	}).setValue(10);
+	}).setValue(15);
 
 	$('.weirdo').touchSlide({minValue: 3, maxValue: 119, moveCallback: function(params) {
 			params.btn.text(params.value);
@@ -83,8 +83,6 @@ body {
 	height: 50px;
 	border: 1px solid blue;
 	position: absolute;
-	left: 0;
-	top: 0;
 	width: 50px;
 	-moz-transform: translate3d(0,0,0);
 	-webkit-transform: translate3d(0,0,0);
